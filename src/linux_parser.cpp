@@ -3,6 +3,8 @@
 #include <dirent.h>
 #include <unistd.h>
 
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -123,7 +125,29 @@ long LinuxParser::ActiveJiffies() { return 0; }
 long LinuxParser::IdleJiffies() { return 0; }
 
 // TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+vector<string> LinuxParser::CpuUtilization() {
+  string cpu, user, nice, system, idle, iowait, irq, softirq, steal, guest,
+      guest_nice;
+  int Idle, NonIdle;
+  float percentage;
+  vector<string> result;
+  string line;
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+  while (filestream.is_open()) {
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    linestream >> cpu >> user >> nice >> system >> idle >> iowait >> irq >>
+        softirq >> steal >> guest >> guest_nice;
+
+    Idle = stoi(idle) + stoi(iowait);
+    NonIdle = stoi(user) + stoi(nice) + stoi(system) + stoi(irq) +
+              stoi(softirq) + stoi(steal);
+    percentage = NonIdle / (float)(Idle + NonIdle);
+    result.push_back(to_string(percentage));
+    return result;
+  }
+  return result;
+}
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
