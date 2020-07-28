@@ -13,6 +13,7 @@
 
 using std::set;
 using std::size_t;
+using std::sort;
 using std::string;
 using std::vector;
 
@@ -20,7 +21,15 @@ using std::vector;
 Processor& System::Cpu() { return cpu_; }
 
 // TODO: Return a container composed of the system's processes
-vector<Process>& System::Processes() { return processes_; }
+vector<Process>& System::Processes() {
+  processes_.clear();
+  for (int& pid : LinuxParser::Pids()) {
+    Process process(pid);
+    processes_.push_back(process);
+  }
+  // sorting processes
+  return processes_;
+}
 
 // TODO: Return the system's kernel identifier (string)
 std::string System::Kernel() { return LinuxParser::Kernel(); }
