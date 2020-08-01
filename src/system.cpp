@@ -28,6 +28,7 @@ vector<Process>& System::Processes() {
     processes_.push_back(process);
   }
   // sorting processes
+  sort(processes_.begin(), processes_.end());
   return processes_;
 }
 
